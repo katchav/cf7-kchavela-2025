@@ -126,10 +126,6 @@ After running `npm run seed`, you can login with:
 - Email: member@library.com
 - Password: MemPass123!
 
-**Additional Account:**
-- Email: aikaterini.chavela@library.com
-- Password: AikaPass123!
-
 ## How to Use the System
 
 ### As a Member:
@@ -235,30 +231,6 @@ Common issues and solutions:
 **Missing Database Tables:**
 - Run migrations: `cd backend && npm run migrate`
 - Seed test data: `npm run seed`
-
-## Project Structure
-
-```
-cf7-kchavela-2025/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/    # Handle HTTP requests
-│   │   ├── services/       # Business logic
-│   │   ├── repositories/   # Database queries
-│   │   ├── routes/         # API endpoints
-│   │   ├── models/         # Data models
-│   │   ├── middlewares/    # Auth and error handling
-│   │   └── validators/     # Input validation
-│   └── migrations/         # Database setup files
-├── frontend/
-│   ├── src/
-│   │   ├── pages/          # Main pages
-│   │   ├── components/     # Reusable parts
-│   │   ├── services/       # API calls
-│   │   └── contexts/       # User authentication
-│   └── public/
-└── README.md
-```
 
 ## Database Tables
 
