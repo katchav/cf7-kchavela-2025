@@ -193,45 +193,6 @@ JWT_REFRESH_SECRET=your_refresh_token_secret
 VITE_API_URL=http://localhost:5001/api
 ```
 
-## Troubleshooting
-
-Common issues and solutions:
-
-**Database Connection Issues:**
-- Check if PostgreSQL is running
-- Make sure you created the database (Step 2)
-- Check your password in the .env file is correct
-
-**"I don't know my PostgreSQL password":**
-- If you just installed it, it's the password you chose during installation
-- On school computers, ask your instructor for the password
-- You can reset it if needed (search online for "reset postgresql password" + your operating system)
-
-**"The .env file doesn't work":**
-- Make sure it's named exactly `.env` (not `.env.txt` or `.env.text`)
-- It must be in the backend folder, not the root project folder
-- No spaces around the = sign (correct: `DB_PASSWORD=mypass` wrong: `DB_PASSWORD = mypass`)
-- On Mac/Linux: Files starting with . are hidden, use `ls -la` to see them
-
-**Port Conflicts:**
-- Backend runs on port 5001 by default
-- Frontend runs on port 3000 by default  
-- Modify PORT in .env if these ports are occupied
-
-**npm install doesn't work:**
-- Delete `node_modules` folder and `package-lock.json`
-- Run `npm install` again
-- Make sure you have Node.js version 18 or newer
-
-**Login doesn't work:**
-- Make sure both backend and frontend are running
-- Check that JWT_SECRET is set in backend .env file
-- Check the frontend .env has the right backend URL
-
-**Missing Database Tables:**
-- Run migrations: `cd backend && npm run migrate`
-- Seed test data: `npm run seed`
-
 ## Database Tables
 
 - **users**: Member and librarian accounts
