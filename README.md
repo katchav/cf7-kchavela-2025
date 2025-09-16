@@ -22,7 +22,7 @@ This is a web application for managing a book lending library. Members can borro
 - Process book returns
 - See library statistics
 
-## Technical Requirements (as per project specifications)
+## Technical Requirements
 
 - Domain Model: Book Lending Library with Users, Books, BookLoans, Categories, BookCategories
 - Backend: Node.js with Express (DAO/Repository/DTO/Service/Controllers pattern)
