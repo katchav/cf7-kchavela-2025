@@ -1,0 +1,266 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: library_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Install backend dependencies  
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps
+
+    - name: Setup test database
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/library_test
+        NODE_ENV: test
+      run: |
+        npm run db:migrate
+        npm run db:seed
+
+    - name: Start backend server
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/library_test
+        NODE_ENV: test
+        PORT: 5001
+      run: |
+        npm start &
+        npx wait-on http://localhost:5001/api/health --timeout 60000
+
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Start frontend server
+      working-directory: ./frontend
+      run: |
+        npm run preview -- --port 3000 &
+        npx wait-on http://localhost:3000 --timeout 60000
+
+    - name: Run Playwright tests
+      working-directory: ./frontend
+      run: npm run test:e2e
+
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: frontend/playwright-report/
+        retention-days: 30
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: frontend/test-results/
+        retention-days: 30
+
+  accessibility-audit:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: library_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Install backend dependencies  
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps
+
+    - name: Setup test database
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/library_test
+        NODE_ENV: test
+      run: |
+        npm run db:migrate
+        npm run db:seed
+
+    - name: Start backend server
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/library_test
+        NODE_ENV: test
+        PORT: 5001
+      run: |
+        npm start &
+        npx wait-on http://localhost:5001/api/health --timeout 60000
+
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Start frontend server
+      working-directory: ./frontend
+      run: |
+        npm run preview -- --port 3000 &
+        npx wait-on http://localhost:3000 --timeout 60000
+
+    - name: Run Accessibility Tests
+      working-directory: ./frontend
+      run: npm run test:e2e:accessibility
+
+    - name: Upload Accessibility Report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: accessibility-report
+        path: frontend/playwright-report/
+        retention-days: 30
+
+  mobile-testing:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: library_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Install backend dependencies  
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps
+
+    - name: Setup test database
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/library_test
+        NODE_ENV: test
+      run: |
+        npm run db:migrate
+        npm run db:seed
+
+    - name: Start backend server
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/library_test
+        NODE_ENV: test
+        PORT: 5001
+      run: |
+        npm start &
+        npx wait-on http://localhost:5001/api/health --timeout 60000
+
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Start frontend server
+      working-directory: ./frontend
+      run: |
+        npm run preview -- --port 3000 &
+        npx wait-on http://localhost:3000 --timeout 60000
+
+    - name: Run Mobile Tests
+      working-directory: ./frontend
+      run: npm run test:e2e:mobile
+
+    - name: Upload Mobile Test Report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: mobile-test-report
+        path: frontend/playwright-report/
+        retention-days: 30
